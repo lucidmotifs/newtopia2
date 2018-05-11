@@ -35,7 +35,7 @@ class ProvinceSystem(object):
         os.chdir(app+'/models')
         # for each entity assigned to COMPONENTS: ...
         com = Component.objects.filter(name=COMPONENTS[0])
-        entities = com[0].entity.all()
+        entities = com[0].assigned.all()
         attributes = []
         for e in entities:
             print(e.id)
