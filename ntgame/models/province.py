@@ -21,43 +21,35 @@ class Province(models.Model):
 ### End Model Code. Entity Generation Below ###
 
 class Peasant(models.Model):
-    entity = models.OneToOneField('ntmeta.Entity', on_delete=models.CASCADE)
+    entity = models.OneToOneField(
+        'ntmeta.Entity', on_delete=models.CASCADE, default=1)
     province = models.OneToOneField(
-        'Province', on_delete=models.CASCADE)
+        'Province', on_delete=models.CASCADE, blank=True)
     growth_rate = models.FloatField(default=0.0)
     amount_total = models.IntegerField(default=0)
-    name_short = models.CharField(max_length=200, null=True, blank=True)
-    name_abbr = models.CharField(max_length=200, null=True, blank=True)
-    name_plural = models.CharField(max_length=200, null=True, blank=True)
 
 
 class Bushel(models.Model):
-    entity = models.OneToOneField('ntmeta.Entity', on_delete=models.CASCADE)
+    entity = models.OneToOneField(
+        'ntmeta.Entity', on_delete=models.CASCADE, default=3)
     province = models.OneToOneField(
-        'Province', on_delete=models.CASCADE)
+        'Province', on_delete=models.CASCADE, blank=True)
     amount_total = models.IntegerField(default=0)
-    name_short = models.CharField(max_length=200, null=True, blank=True)
-    name_abbr = models.CharField(max_length=200, null=True, blank=True)
-    name_plural = models.CharField(max_length=200, null=True, blank=True)
 
 
 class GoldCoin(models.Model):
-    entity = models.OneToOneField('ntmeta.Entity', on_delete=models.CASCADE)
+    entity = models.OneToOneField(
+        'ntmeta.Entity', on_delete=models.CASCADE, default=4)
     province = models.OneToOneField(
-        'Province', on_delete=models.CASCADE)
+        'Province', on_delete=models.CASCADE, blank=True)
     amount_total = models.IntegerField(default=0)
-    name_short = models.CharField(max_length=200, null=True, blank=True)
-    name_abbr = models.CharField(max_length=200, null=True, blank=True)
-    name_plural = models.CharField(max_length=200, null=True, blank=True)
 
 
 class Rune(models.Model):
-    entity = models.OneToOneField('ntmeta.Entity', on_delete=models.CASCADE)
+    entity = models.OneToOneField(
+        'ntmeta.Entity', on_delete=models.CASCADE, default=5)
     province = models.OneToOneField(
-        'Province', on_delete=models.CASCADE)
+        'Province', on_delete=models.CASCADE, blank=True)
     amount_total = models.IntegerField(default=0)
-    name_short = models.CharField(max_length=200, null=True, blank=True)
-    name_abbr = models.CharField(max_length=200, null=True, blank=True)
-    name_plural = models.CharField(max_length=200, null=True, blank=True)
-    growth_rate = models.FloatField(default=0.0)
+    growth_rate = models.FloatField(default='-5.0')
 

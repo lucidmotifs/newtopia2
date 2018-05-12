@@ -1,10 +1,11 @@
 from django.contrib import admin
 
-from ntmeta.models import Aspect, Component, Entity, Quality
+from ntmeta.models import Aspect, Component, Entity, Quality, DefaultValue
 
 # Register your models here.
 admin.site.register(Quality)
 admin.site.register(Component)
+admin.site.register(DefaultValue)
 
 class AspectInline(admin.StackedInline):
     model = Aspect.entities.through
@@ -12,7 +13,7 @@ class AspectInline(admin.StackedInline):
     verbose_name = "Aspect"
     verbose_name_plural = "Aspects"
     show_change_link = True
-    can_delete = False
+    can_delete = True
 
 
 class QualityInline(admin.StackedInline):

@@ -3,7 +3,9 @@ import os
 from django.conf import settings
 
 from ntmeta.choices import QualityTypeChoices
-from ntmeta.models import Component
+from ntmeta.managers import EntityManager
+from ntmeta.models import Component, DefaultValue
+from ntmeta.systems.default import DefaultSystem
 
 COMPONENTS = ('Province', )
 
@@ -37,9 +39,10 @@ DEFAULT_ARGS_MAP = {
 ENTITY_MODEL_TEMPLATE = \
 """
 class %(name)s(models.Model):
-    entity = models.OneToOneField('ntmeta.Entity', on_delete=models.CASCADE)
+    entity = models.OneToOneField(
+        'ntmeta.Entity', on_delete=models.CASCADE, default=%(entity_id)s)
     %(game_model)s = models.OneToOneField(
-        '%(game_model_cap)s', on_delete=models.CASCADE)
+        '%(game_model_cap)s', on_delete=models.CASCADE, blank=True)
 %(attributes)s
 """
 
@@ -85,6 +88,7 @@ class ProvinceSystem(object):
         for e in cls.get_entities():
             attributes[e.id] = []
             e_attrib = attributes[e.id]
+            
             # get aspect qualities
             a_set = e.aspect_set.all()
             for a in a_set:
@@ -93,17 +97,28 @@ class ProvinceSystem(object):
                     label = a.name.lower() if (
                         a.name.lower() == q.label) else '%s_%s' % (
                             a.name.lower(), q.label)
+
                     field = 'models.{}'.format(q.data_type)
+
                     args = DEFAULT_ARGS_MAP.get(q.data_type, ())
-                    kwargs = DEFAULT_KWARGS_MAP.get(q.data_type, {})
+                    kwargs = DEFAULT_KWARGS_MAP.get(q.data_type, {}).copy()                  
+
+                    # check for a default value
+                    try:
+                        default = DefaultValue.objects.get(
+                            entity=e, aspect=a, quality=q)
+                        kwargs['default'] = "'{}'".format(default.default)
+                    except DefaultValue.DoesNotExist:
+                        pass
 
                     arg_string = ', '.join(args) + ', ' if len(args) else ''
+                    kwargs_string = ', '.join(
+                        ['%s=%s' % (k, v) for k, v in kwargs.items()])
                     e_attrib.append(QUALITY_TEMPLATE % {
                         'label': label,
                         'field': field,
                         'args': arg_string,
-                        'kwargs': ', '.join(
-                            ['%s=%s' % (k, v) for k, v in kwargs.items()]),
+                        'kwargs': kwargs_string,
                     })
             # create inital template string with replacements
             # (including attributes)
@@ -111,9 +126,10 @@ class ProvinceSystem(object):
                 'name': e.name.title().replace(' ', ''),
                 'game_model': GAME_MODEL.lower(),
                 'game_model_cap': GAME_MODEL.capitalize(),
+                'entity_id': e.id,
                 'attributes': ''.join(attributes[e.id]),
             }
-        [print(m) for m in models.values()]
+        # [print(m) for m in models.values()]
 
         with open(GAME_MODEL.lower()+'.py', 'w') as f:
             # write file
@@ -123,19 +139,22 @@ class ProvinceSystem(object):
         # for any existing instances of the releated GAMEMODEL
         # then create an instance of model and attach it
 
-        print('Done!')  # TODO real logging output
+        print('Finished Generating Entites')  # TODO real logging output
 
-        return [m for m in models.values()]
+        # return [m for m in models.values()]
 
     @classmethod
-    def make_entity_instances(cls, province):
+    def make_entity_instances(cls, app, model):
         """ Create an instance of all related entities and attach to
             `province` """
         for e in cls.get_entities():
-            class_ = getattr(GAME_MODEL.lower(), e.name)
+            class_ = getattr(app + '.' + GAME_MODEL.lower(), e.name)
             inst = class_()
             if inst.hasattr('entity'):
                 inst.setattr('entity', e)
-            inst.add(province)
+            # will error if exists (one2one rel) so just try catch pass
+            inst.add(model)
             inst.save()
+
+        print('Finished Instatiating Entities')
         

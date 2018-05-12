@@ -41,3 +41,17 @@ class Component(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class DefaultValue(models.Model):
+    """ Use a tri-key (Entity, Aspect, Quality) to serve as a look-up for default
+        values. """
+    entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
+    aspect = models.ForeignKey(Aspect, on_delete=models.CASCADE)
+    quality = models.ForeignKey(Quality, on_delete=models.CASCADE)
+    default = models.CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        return "{} {} {} {}".format(
+            self.entity.name, self.aspect.name, self.quality.label,
+            self.default)
