@@ -9,9 +9,11 @@ COMPONENTS = ('Province', )
 
 GAME_MODEL = 'Province'
 
+BUFFER_LINE = '### Entity Generation'
+
 DEFAULT_KWARGS_MAP = {
     QualityTypeChoices[0][0]: {
-        'max_length': 100,
+        'max_length': 200,
         'null': True,
         'blank': True,
     },
@@ -32,17 +34,19 @@ DEFAULT_ARGS_MAP = {
     QualityTypeChoices[4][0]: {"'GoldCoin'"}
 }
 
-ENTITY_MODEL_TEMPLATE = """
-from django.db import models
-
+ENTITY_MODEL_TEMPLATE = \
+"""
 class %(name)s(models.Model):
-    %(game_model)s = models.OneToOneField('%(game_model_cap)s')
-    %(attributes)s
-
+    entity = models.OneToOneField('ntmeta.Entity', on_delete=models.CASCADE)
+    %(game_model)s = models.OneToOneField(
+        '%(game_model_cap)s', on_delete=models.CASCADE)
+%(attributes)s
 """
 
-QUALITY_TEMPLATE = """
-    %(label)s = %(field)s(%(args)s, %(kwargs)s)"""
+QUALITY_TEMPLATE = \
+"""    %(label)s = %(field)s(%(args)s%(kwargs)s)
+"""
+
 
 class ProvinceSystem(object):
     """ Province system """
@@ -51,17 +55,34 @@ class ProvinceSystem(object):
         pass
 
     @classmethod
+    def buffer_game_model(cls):
+        buffer = []
+        with open(GAME_MODEL.lower()+'.py', 'r') as f:
+            for line in f:
+                buffer.append(line)
+                if "###" in line:
+                    return buffer                
+
+        return buffer
+
+    @classmethod
+    def get_entities(cls):
+        """ Code could live on Component module """
+        com = Component.objects.filter(name=COMPONENTS[0])
+        return com[0].assigned.all()
+
+
+    @classmethod
     def generate_entities(cls, app):
         # ensure app exists
         assert app in settings.INSTALLED_APPS, 'app not found!'
         # change to app dir
         os.chdir(app+'/models')
-        # for each entity assigned to COMPONENTS: ...
-        com = Component.objects.filter(name=COMPONENTS[0])
-        entities = com[0].assigned.all()
+        buffer = cls.buffer_game_model()
+        
         models, attributes = {}, {}
-        for e in entities:
-            print(e.id)
+        # TODO abstract attribute generation to EntityManager.build_attribs(e)
+        for e in cls.get_entities():
             attributes[e.id] = []
             e_attrib = attributes[e.id]
             # get aspect qualities
@@ -70,40 +91,51 @@ class ProvinceSystem(object):
                 # create an attribute for each quality
                 for q in a.quality_set.all():
                     label = a.name.lower() if (
-                        a.name == q.label) else '%s_%s' % (a.name.lower(), q.label)
-                    print(label)
-                    field = q.data_type
-                    args = DEFAULT_ARGS_MAP.get(field, ())
-                    kwargs = DEFAULT_KWARGS_MAP.get(field, {})
+                        a.name.lower() == q.label) else '%s_%s' % (
+                            a.name.lower(), q.label)
+                    field = 'models.{}'.format(q.data_type)
+                    args = DEFAULT_ARGS_MAP.get(q.data_type, ())
+                    kwargs = DEFAULT_KWARGS_MAP.get(q.data_type, {})
 
-                    arg_string = ', '.join(args) if args else ''
+                    arg_string = ', '.join(args) + ', ' if len(args) else ''
                     e_attrib.append(QUALITY_TEMPLATE % {
                         'label': label,
                         'field': field,
                         'args': arg_string,
-                        'kwargs': ', '.join(['%s=%s' % (k, v) for k, v in kwargs.items()]),
+                        'kwargs': ', '.join(
+                            ['%s=%s' % (k, v) for k, v in kwargs.items()]),
                     })
-            models[e.id] = ENTITY_MODEL_TEMPLATE % {
-                'name': e.name.capitalize(),
-                'game_model': 'province',
-                'game_model_cap': 'Province',
-                'attributes': attributes[e.id],
+            # create inital template string with replacements
+            # (including attributes)
+            models[e.name] = ENTITY_MODEL_TEMPLATE % {
+                'name': e.name.title().replace(' ', ''),
+                'game_model': GAME_MODEL.lower(),
+                'game_model_cap': GAME_MODEL.capitalize(),
+                'attributes': ''.join(attributes[e.id]),
             }
+        [print(m) for m in models.values()]
 
-        print(attributes)
-        print{models}
+        with open(GAME_MODEL.lower()+'.py', 'w') as f:
+            # write file
+            f.writelines(buffer)
+            [f.write(model) for model in models.values()]
+
+        # for any existing instances of the releated GAMEMODEL
+        # then create an instance of model and attach it
+
         print('Done!')  # TODO real logging output
 
-        return models
+        return [m for m in models.values()]
 
-        # with open(GAME_MODEL.lower()+'.py', 'w') as model:
-        # build attribute string from aspect qualities (+ \n)
-
-        # i.e. aspect.quality.label = aspect.quality.data_type(DATA_TYPE_TEMPLATE)
-        #
-        # create inital template string with replacements (including attributes)
-        # write file
-        # save file
-        #
-        # for any existing instances of the releated GAMEMODEL, create an instance of
-        # model and attach
+    @classmethod
+    def make_entity_instances(cls, province):
+        """ Create an instance of all related entities and attach to
+            `province` """
+        for e in cls.get_entities():
+            class_ = getattr(GAME_MODEL.lower(), e.name)
+            inst = class_()
+            if inst.hasattr('entity'):
+                inst.setattr('entity', e)
+            inst.add(province)
+            inst.save()
+        
