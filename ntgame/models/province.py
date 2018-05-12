@@ -22,8 +22,6 @@ class Province(models.Model):
 
     # Infrastrcture
 
-    # Military
-
     def __str__(self):
         return "%s of %s (%d:%d)" % \
             ( self.name,
@@ -38,7 +36,7 @@ class Peasant(models.Model):
         'ntmeta.Entity', on_delete=models.CASCADE, default=1)
     province = models.OneToOneField(
         'Province', on_delete=models.CASCADE, blank=True)
-    growth_rate = models.FloatField(default=0.0)
+    growth_rate = models.FloatField(default='10.0')
     amount_total = models.IntegerField(default=0)
 
 

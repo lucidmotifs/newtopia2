@@ -1,12 +1,8 @@
-# Province System module
-import os
-from django.conf import settings
-
 from ntmeta.systems.base import System
 from ntmeta.systems.base import DEFAULT_ARGS_MAP, DEFAULT_KWARGS_MAP
 
-class ProvinceSystem(System):
-    """ Province system """
+class MilitarySystem(System):
+    """ Military system """
 
     def __init__(self):
         pass
@@ -15,8 +11,9 @@ class ProvinceSystem(System):
     def boot(cls, app):
         """ Start the app from scratch, generating Entities and other 
             objects """
-        cls.set_core_component('Province')
-        cls.set_game_model('Province')
+        cls.set_core_component('Military')
+        cls.set_game_model('Military')
+
         # generate Entities
         cls.generate_entities(app, DEFAULT_ARGS_MAP, DEFAULT_KWARGS_MAP)
 
@@ -34,4 +31,3 @@ class ProvinceSystem(System):
             inst.save()
 
         print('Finished Instatiating Entities')
-        
