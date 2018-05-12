@@ -26,7 +26,7 @@ DEFAULT_KWARGS_MAP = {
 }
 
 DEFAULT_ARGS_MAP = {
-    QualityTypeChoices[4][0]: {"'GoldCoin'"}
+    QualityTypeChoices[4][0]: {"'ntmeta.Entity'"}
 }
 
 class System(object):
@@ -34,7 +34,7 @@ class System(object):
     tpl_entity_model = \
 """
 class %(name)s(models.Model):
-    entity = models.OneToOneField(
+    entity = models.ForeignKey(
         'ntmeta.Entity', on_delete=models.CASCADE, default=%(entity_id)s)
     %(game_model)s = models.OneToOneField(
         '%(game_model_cap)s', on_delete=models.CASCADE, blank=True)

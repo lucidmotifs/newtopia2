@@ -1,31 +1,17 @@
-# TODO just remove all this shit...
-SHORT_MAP = {
-    'Bushel': 'Food',
-    'Gold Coin': 'Money',
-}
-
-PLURAL_MAP = {
-
-}
+from ntmeta.models import Entity, DefaultValue
 
 class EntityManager(object):
     
     @classmethod
-    def get_name_defaults(cls, entity):
-        print('getting defaults for entity: %s' % entity.name)
-        # TODO move these statically type defaults to meta db
-        # TODO manage this via an Aspect class for Name
-        space_split = entity.name.split(' ')
-        if len(space_split) > 1:
-            # abbr is first letter of each word
-            abbr = ''
-            for word in space_split:
-                abbr += word[0].lower()
-        else:
-            abbr = None
+    def get_default_values(cls, entity):
+        qs = DefaultValue.objects.filter(entity=entity)
+        return {r.quality.label: r.value for r in qs}
 
-        return {
-            'short': SHORT_MAP.get(entity.name),
-            'plural': PLURAL_MAP.get(entity.name),
-            'abbr': abbr,
-        }
+
+    @classmethod
+    def get_quality_list(cls, entity):
+        """ return a list of all qualities related to a given entity """
+        ret = []
+        for asp in entity.aspect_set.all():
+            ret.extend(asp.quality_set.all())
+        return ret
