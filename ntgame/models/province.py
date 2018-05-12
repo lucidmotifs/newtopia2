@@ -1,5 +1,7 @@
 from django.db import models
 
+from ntgame.models.kingdom import Kingdom
+
 class Province(models.Model):
     # basic attributes
     name = models.CharField("Province Name", max_length=200, null=False)
@@ -12,11 +14,22 @@ class Province(models.Model):
         null=False,
         blank=False)
 
-    # Kingdom
+    kingdom = models.ForeignKey(Kingdom,
+        on_delete=models.CASCADE,
+        default=1,
+        null=False,
+        blank=False)
 
     # Infrastrcture
 
     # Military
+
+    def __str__(self):
+        return "%s of %s (%d:%d)" % \
+            ( self.name,
+              self.kingdom.name,
+              self.kingdom.island,
+              self.kingdom.number )
 
 ### End Model Code. Entity Generation Below ###
 

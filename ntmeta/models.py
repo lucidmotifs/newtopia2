@@ -24,13 +24,15 @@ class Aspect(models.Model):
 class Quality(models.Model):
     label = models.CharField(max_length=50, unique=False)
     data_type = models.CharField(choices=QualityTypeChoices, max_length=20)
-    aspect = models.ForeignKey(Aspect, blank=True, on_delete=models.CASCADE, default=1)
+    aspect = models.ForeignKey(
+        Aspect, blank=True, on_delete=models.CASCADE, default=1)
 
     class Meta:
         verbose_name_plural = 'Qualities'
 
     def __str__(self):
-        return self.label    
+        return '{} {} ({})'.format(
+            self.aspect, self.label.capitalize(), self.data_type)
 
 
 class Component(models.Model):
@@ -53,5 +55,5 @@ class DefaultValue(models.Model):
 
     def __str__(self):
         return "{} {} {} {}".format(
-            self.entity.name, self.aspect.name, self.quality.label,
-            self.default)
+            self.entity.name, self.aspect.name,
+            self.quality.label.capitalize(), self.default)

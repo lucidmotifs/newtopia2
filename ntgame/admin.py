@@ -1,7 +1,9 @@
 from django.contrib import admin
 
 from ntgame.models import Province, Peasant, Bushel, GoldCoin, Rune
+from ntgame.models import Kingdom
 
+admin.site.register(Kingdom)
 admin.site.register(Peasant)
 
 class PeasantInline(admin.TabularInline):
