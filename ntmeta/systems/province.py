@@ -42,8 +42,7 @@ class %(name)s(models.Model):
 """
 
 QUALITY_TEMPLATE = """
-    %(label)s = %(field)s(%(args)s, %(kwargs)s)
-"""
+    %(label)s = %(field)s(%(args)s, %(kwargs)s)"""
 
 class ProvinceSystem(object):
     """ Province system """
@@ -60,9 +59,11 @@ class ProvinceSystem(object):
         # for each entity assigned to COMPONENTS: ...
         com = Component.objects.filter(name=COMPONENTS[0])
         entities = com[0].assigned.all()
-        attributes = []
+        models, attributes = {}, {}
         for e in entities:
             print(e.id)
+            attributes[e.id] = []
+            e_attrib = attributes[e.id]
             # get aspect qualities
             a_set = e.aspect_set.all()
             for a in a_set:
@@ -75,14 +76,25 @@ class ProvinceSystem(object):
                     args = DEFAULT_ARGS_MAP.get(field, ())
                     kwargs = DEFAULT_KWARGS_MAP.get(field, {})
 
-                    attributes.append(QUALITY_TEMPLATE % {
+                    arg_string = ', '.join(args) if args else ''
+                    e_attrib.append(QUALITY_TEMPLATE % {
                         'label': label,
                         'field': field,
-                        'args': ', '.join(args),
+                        'args': arg_string,
                         'kwargs': ', '.join(['%s=%s' % (k, v) for k, v in kwargs.items()]),
                     })
+            models[e.id] = ENTITY_MODEL_TEMPLATE % {
+                'name': e.name.capitalize(),
+                'game_model': 'province',
+                'game_model_cap': 'Province',
+                'attributes': attributes[e.id],
+            }
 
         print(attributes)
+        print{models}
+        print('Done!')  # TODO real logging output
+
+        return models
 
         # with open(GAME_MODEL.lower()+'.py', 'w') as model:
         # build attribute string from aspect qualities (+ \n)
@@ -95,5 +107,3 @@ class ProvinceSystem(object):
         #
         # for any existing instances of the releated GAMEMODEL, create an instance of
         # model and attach
-
-        print('Done!')  # TODO real logging output
