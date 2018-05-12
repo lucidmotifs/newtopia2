@@ -24,7 +24,7 @@ DEFAULT_KWARGS_MAP = {
     QualityTypeChoices[3][0]: {
         'blank': False,
         'default': True,
-    }
+    },
     QualityTypeChoices[4][0]: {}
 }
 
@@ -67,19 +67,19 @@ class ProvinceSystem(object):
             a_set = e.aspect_set.all()
             for a in a_set:
                 # create an attribute for each quality
-                for q in a.qualities.all():
+                for q in a.quality_set.all():
                     label = a.name.lower() if (
-                        a.name == q.name) else '%s_%s' % (a.name, q.name)
+                        a.name == q.label) else '%s_%s' % (a.name.lower(), q.label)
                     print(label)
                     field = q.data_type
-                    args = DEFAULT_ARGS_MAP.get(field)
-                    kwargs = DEFAULT_KWARGS_MAP.get(field)
+                    args = DEFAULT_ARGS_MAP.get(field, ())
+                    kwargs = DEFAULT_KWARGS_MAP.get(field, {})
 
                     attributes.append(QUALITY_TEMPLATE % {
                         'label': label,
                         'field': field,
-                        'args': *args,
-                        'kwargs': **kwargs,
+                        'args': ', '.join(args),
+                        'kwargs': ', '.join(['%s=%s' % (k, v) for k, v in kwargs.items()]),
                     })
 
         print(attributes)
