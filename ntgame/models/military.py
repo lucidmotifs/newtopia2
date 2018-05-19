@@ -6,6 +6,9 @@ class Military(models.Model):
     attack_time = models.FloatField("Base attack time", default=20)
     general_count = models.IntegerField(default=5)
 
+    class Meta:
+        verbose_name_plural = 'Militaries'
+
 ### End Model Code. Entity Generation Below ###
 
 class Soldier(models.Model):

@@ -21,7 +21,7 @@ DEFAULT_KWARGS_MAP = {
         'default': True,
     },
     QualityTypeChoices[4][0]: {
-        'on_delete': 'models.CASCADE'
+        'on_delete': 'models.CASCADE',
     }
 }
 
@@ -92,12 +92,12 @@ class %(name)s(models.Model):
                     field = 'models.{}'.format(q.data_type)
 
                     args = args_map.get(q.data_type, ())
-                    kwargs = kwargs_map.get(q.data_type, {}).copy()                  
+                    kwargs = kwargs_map.get(q.data_type, {}).copy()
 
                     # check for a default value
                     try:
                         default = DefaultValue.objects.get(
-                            entity=e, aspect=a, quality=q)
+                            entity=e, quality=q)
                         kwargs['default'] = "'{}'".format(default.default)
                     except DefaultValue.DoesNotExist:
                         pass

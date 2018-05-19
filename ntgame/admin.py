@@ -31,8 +31,8 @@ class BushelInline(admin.StackedInline):
 class GoldCoinInline(admin.StackedInline):
     model = GoldCoin
     readonly_fields = ('entity',)
-    verbose_name = "GoldCoin"
-    verbose_name_plural = "GoldCoins"
+    verbose_name = "Gold Coin"
+    verbose_name_plural = "Gold Coins"
     show_change_link = True
     can_delete = False
 
