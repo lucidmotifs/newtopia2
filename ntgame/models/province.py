@@ -18,16 +18,22 @@ class Province(models.Model):
 
     military = models.OneToOneField(
         Military, null=False, on_delete=models.CASCADE, default=1)
+    
+    infrastructure = models.OneToOneField(
+        Infrastructure, null=False, on_delete=models.CASCADE, default=1)
 
-    # Infrastrcture
+    race = models.ForeignKey(
+        Race, null=False, on_delete=models.CASCADE, default=1)
 
-    # Race
+    science = models.OneToOneField(
+        Science, null=False, on_delete=models.CASCADE, default=1)
 
-    # Science
+    magic = models.OneToOneField(
+        Magic, null=False, on_delete=models.CASCADE, default=1)
 
-    # Magic
+    thievery = models.OneToOneField(
+        Thievery, null=False, on_delete=models.CASCADE, default=1)
 
-    # Thievery
 
     def __str__(self):
         return "%s of %s (%d:%d)" % \
