@@ -2,6 +2,11 @@ from django.db import models
 
 from ntgame.models.kingdom import Kingdom
 from ntgame.models.military import Military
+from ntgame.models.infrastructure import Infrastructure
+from ntgame.models.race import Race
+from ntgame.models.science import Science
+from ntgame.models.magic import Magic
+from ntgame.models.thievery import Thievery
 
 class Province(models.Model):
     # basic attributes
@@ -36,11 +41,9 @@ class Province(models.Model):
 
 
     def __str__(self):
-        return "%s of %s (%d:%d)" % \
+        return "%s of %s" % \
             ( self.name,
-              self.kingdom.name,
-              self.kingdom.island,
-              self.kingdom.number )
+              str(self.kingdom))
 
 ### End Model Code. Entity Generation Below ###
 
