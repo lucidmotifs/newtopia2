@@ -1,17 +1,24 @@
 from django.db import models
 
+from ntgame.models.entities import (Peasant, Rune, GoldCoin, Food)
 from ntgame.models.kingdom import Kingdom
-from ntgame.models.military import Military
-from ntgame.models.infrastructure import Infrastructure
 from ntgame.models.race import Race
-from ntgame.models.science import Science
-from ntgame.models.magic import Magic
-from ntgame.models.thievery import Thievery
+
 
 class Province(models.Model):
     # basic attributes
     name = models.CharField("Province Name", max_length=200, null=False)
     ruler = models.CharField("Ruler Name", max_length=60, null=False)
+
+    # entities
+    peasants = models.OneToOneField(
+        Peasant, on_delete=models.CASCADE, null=False, blank=False)
+    runes = models.OneToOneField(
+        Rune, on_delete=models.CASCADE, null=False, blank=False)
+    gold_coins = models.OneToOneField(
+        GoldCoin, on_delete=models.CASCADE, null=False, blank=False)
+    food = models.OneToOneField(
+        Food, on_delete=models.CASCADE, null=False, blank=False)
 
     # define relationships to other Game Models / Systems
     owner = models.ForeignKey(
@@ -21,62 +28,10 @@ class Province(models.Model):
     kingdom = models.ForeignKey(
         Kingdom, on_delete=models.CASCADE, null=False, blank=False, default=1)
 
-    military = models.OneToOneField(
-        Military, null=False, on_delete=models.CASCADE, default=1)
-    
-    infrastructure = models.OneToOneField(
-        Infrastructure, null=False, on_delete=models.CASCADE, default=1)
-
     race = models.ForeignKey(
-        Race, null=False, on_delete=models.CASCADE, default=1)
-
-    science = models.OneToOneField(
-        Science, null=False, on_delete=models.CASCADE, default=1)
-
-    magic = models.OneToOneField(
-        Magic, null=False, on_delete=models.CASCADE, default=1)
-
-    thievery = models.OneToOneField(
-        Thievery, null=False, on_delete=models.CASCADE, default=1)
-
+        Race, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return "%s of %s" % \
             ( self.name,
               str(self.kingdom))
-
-### End Model Code. Entity Generation Below ###
-
-class Peasant(models.Model):
-    entity = models.ForeignKey(
-        'ntmeta.Entity', on_delete=models.CASCADE, default=1)
-    province = models.OneToOneField(
-        'Province', on_delete=models.CASCADE, blank=True)
-    growth_rate = models.FloatField(default='10.0')
-    amount_total = models.IntegerField(default='1000')
-
-
-class Bushel(models.Model):
-    entity = models.ForeignKey(
-        'ntmeta.Entity', on_delete=models.CASCADE, default=3)
-    province = models.OneToOneField(
-        'Province', on_delete=models.CASCADE, blank=True)
-    amount_total = models.IntegerField(default='10000')
-
-
-class GoldCoin(models.Model):
-    entity = models.ForeignKey(
-        'ntmeta.Entity', on_delete=models.CASCADE, default=4)
-    province = models.OneToOneField(
-        'Province', on_delete=models.CASCADE, blank=True)
-    amount_total = models.IntegerField(default='50000')
-
-
-class Rune(models.Model):
-    entity = models.ForeignKey(
-        'ntmeta.Entity', on_delete=models.CASCADE, default=5)
-    province = models.OneToOneField(
-        'Province', on_delete=models.CASCADE, blank=True)
-    amount_total = models.IntegerField(default=0)
-    growth_rate = models.FloatField(default='-5.0')
-

@@ -5,12 +5,11 @@ from .choices import QualityTypeChoices
 
 class Entity(models.Model):
     CLASS_TEMPLATE = \
-    """
-    class {name}(models.Model):
-        entity = models.ForeignKey(
-            'ntmeta.Entity', on_delete=models.CASCADE, default={id})
-        {attributes}
-    """
+        str(
+            'class {name}(models.Model):\n'
+            '    entity = models.ForeignKey(\n'
+            '        \'ntmeta.Entity\', on_delete=models.CASCADE, default={id})\n'
+            '    {attributes}')
 
     # django fields
     name = models.CharField(max_length=100, unique=True)
@@ -19,7 +18,7 @@ class Entity(models.Model):
         # @TODO move to strings/templates module
 
         attr_fields = []
-        for a in self.aspect_set.all():
+        for a in getattr(self, 'aspect_set').all():
             attr_fields.append(q.gen_attr_field() for q in a.quality_set.all())
 
         return Entity.CLASS_TEMPLATE % ({
@@ -44,7 +43,7 @@ class Aspect(models.Model):
 
 
 class Quality(models.Model):
-    FIELD_TEMPLATE = "%(label)s = %(field)s(%(args)s%(kwargs)s)"
+    FIELD_TEMPLATE = '{label} = {field}({args}, {kwargs})'
     # should be loaded from QualityFieldArgs (args) when done
     max_length = 255
 
@@ -53,7 +52,6 @@ class Quality(models.Model):
     description = models.CharField(max_length=255, default='No Description')
     nullable = models.BooleanField(default=False)
     blank = models.BooleanField(default=False)
-
 
     # relationships
     aspect = models.ForeignKey(

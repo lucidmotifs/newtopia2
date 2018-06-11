@@ -3,6 +3,7 @@ from enum import Enum
 from django.db.models import fields
 from django.db.models.fields.related import ForeignKey
 
+
 # TODO move ot seperate module
 class QualityType(Enum):
     TEXT = 'Text'

@@ -1,54 +1,27 @@
 # django modules
 from django.db import models
 
+from ntgame.models.province import Province
+from ntgame.models.entities import (
+    Soldier, OffensiveSpecialist, DefensiveSpecialist, Elite)
+
+
 class Military(models.Model):
+
+    province = models.OneToOneField(
+        Province, null=False, on_delete=models.CASCADE, default=1)
 
     attack_time = models.FloatField("Base attack time", default=20)
     general_count = models.IntegerField(default=5)
 
+    soldiers = models.OneToOneField(
+        Soldier, on_delete=models.CASCADE, null=False, blank=False)
+    offspec = models.OneToOneField(
+        OffensiveSpecialist, on_delete=models.CASCADE, null=False, blank=False)
+    defspec = models.OneToOneField(
+        DefensiveSpecialist, on_delete=models.CASCADE, null=False, blank=False)
+    elites = models.OneToOneField(
+        Elite, on_delete=models.CASCADE, null=False, blank=False)
+
     class Meta:
         verbose_name_plural = 'Militaries'
-
-### End Model Code. Entity Generation Below ###
-
-class Soldier(models.Model):
-    entity = models.ForeignKey(
-        'ntmeta.Entity', on_delete=models.CASCADE, default=6)
-    military = models.OneToOneField(
-        'Military', on_delete=models.CASCADE, blank=True)
-    amount_total = models.IntegerField(default=0)
-    offensive_strength_value = models.IntegerField(default='1')
-    defensive_strength_value = models.IntegerField(default='1')
-    consumes = models.ForeignKey('ntmeta.Entity', on_delete=models.CASCADE, related_name='consumes')
-
-
-class OffensiveSpecialist(models.Model):
-    entity = models.ForeignKey(
-        'ntmeta.Entity', on_delete=models.CASCADE, default=7)
-    military = models.OneToOneField(
-        'Military', on_delete=models.CASCADE, blank=True)
-    offensive_strength_value = models.IntegerField(default='4')
-    amount_total = models.IntegerField(default=0)
-
-
-class DefensiveSpecialist(models.Model):
-    entity = models.ForeignKey(
-        'ntmeta.Entity', on_delete=models.CASCADE, default=8)
-    military = models.OneToOneField(
-        'Military', on_delete=models.CASCADE, blank=True)
-    defensive_strength_value = models.IntegerField(default='4')
-    amount_total = models.IntegerField(default=0)
-
-
-class Elite(models.Model):
-    entity = models.ForeignKey(
-        'ntmeta.Entity', on_delete=models.CASCADE, default=9)
-    military = models.OneToOneField(
-        'Military', on_delete=models.CASCADE, blank=True)
-    offensive_strength_value = models.IntegerField(default=0)
-    defensive_strength_value = models.IntegerField(default=0)
-    amount_total = models.IntegerField(default=0)
-    cost_price = models.IntegerField(default=0)
-    cost_currency = models.ForeignKey('ntmeta.Entity', on_delete=models.CASCADE, default='3', related_name='cost_currency')
-    cost_scaling = models.FloatField(default=0.0)
-

@@ -1,111 +1,129 @@
 from django.contrib import admin
 
 from ntgame.models import Kingdom
-from ntgame.models import Province, Peasant, Bushel, GoldCoin, Rune
-from ntgame.models import (
-    Military, Soldier, OffensiveSpecialist, DefensiveSpecialist, Elite)
+from ntgame.models import Province
+from ntgame.models import Military
+from ntgame.models import Infrastructure
+from ntgame.models import Science
+from ntgame.models import Magic
+from ntgame.models import Thievery
+from ntgame.models.entities import (
+    Food, Peasant, GoldCoin, Rune, Soldier, OffensiveSpecialist, 
+    DefensiveSpecialist, Elite, Mage, Thief)
 
-### ProvinceAdmin Start ###
-
+# Province Start
 admin.site.register(Kingdom)
+admin.site.register(Food)
+admin.site.register(Peasant)
+admin.site.register(GoldCoin)
+admin.site.register(Rune)
 
-class PeasantInline(admin.StackedInline):
-    model = Peasant
-    readonly_fields = ('entity',)
-    verbose_name = "Peasant"
-    verbose_name_plural = "Peasants"
-    show_change_link = True
-    can_delete = False
+# Military Start
+admin.site.register(OffensiveSpecialist)
+admin.site.register(DefensiveSpecialist)
+admin.site.register(Elite)
+admin.site.register(Soldier)
+
+# Magic
+admin.site.register(Mage)
+
+# Thievery
+admin.site.register(Thief)
 
 
-class BushelInline(admin.StackedInline):
-    model = Bushel
+class MilitaryInline(admin.StackedInline):
+    model = Military
     max_num = 1
-    readonly_fields = ('entity',)
-    verbose_name = "Bushel"
-    verbose_name_plural = "Bushels"
+    verbose_name = "Military"
+    verbose_name_plural = "Military"
     show_change_link = True
     can_delete = False
 
 
-class GoldCoinInline(admin.StackedInline):
-    model = GoldCoin
-    readonly_fields = ('entity',)
-    verbose_name = "Gold Coin"
-    verbose_name_plural = "Gold Coins"
-    show_change_link = True
-    can_delete = False
-
-
-class RuneInline(admin.StackedInline):
-    model = Rune
-    readonly_fields = ('entity',)
-    verbose_name = "Rune"
-    verbose_name_plural = "Runes"
-    show_change_link = True
-    can_delete = False
-
-
-@admin.register(Province)
-class ProvinceAdmin(admin.ModelAdmin):
-    ### entity inlines
-    inlines = [
-        PeasantInline,
-        BushelInline,
-        GoldCoinInline,
-        RuneInline,
-    ]
-
-### ProvinceAdmin End ###
-
-### MilitaryAdmin Start ###
-
-class SoldierInline(admin.StackedInline):
-    model = Soldier
+class InfrastructureInline(admin.TabularInline):
+    model = Infrastructure
     max_num = 1
-    readonly_fields = ('entity',)
-    verbose_name = "Soldier"
-    verbose_name_plural = "Soldiers"
+    extra = 1
+    verbose_name = "Infrastructure"
+    verbose_name_plural = "Infrastructure"
     show_change_link = True
     can_delete = False
 
 
-class OffspecInline(admin.StackedInline):
-    model = OffensiveSpecialist
+class MagicInline(admin.TabularInline):
+    model = Magic
     max_num = 1
-    readonly_fields = ('entity',)
-    verbose_name = "Offspec"
-    verbose_name_plural = "OffSpec"
+    verbose_name = "Magic"
+    verbose_name_plural = "Magic"
     show_change_link = True
     can_delete = False
 
 
-class DefspecInline(admin.StackedInline):
-    model = DefensiveSpecialist
+class ThieveryInline(admin.TabularInline):
+    model = Thievery
     max_num = 1
-    readonly_fields = ('entity',)
-    verbose_name = "Defspec"
-    verbose_name_plural = "Defspec"
+    verbose_name = "Thievery"
+    verbose_name_plural = "Thievery"
     show_change_link = True
     can_delete = False
 
 
-class EliteInline(admin.StackedInline):
-    model = Elite
+class ScienceInline(admin.TabularInline):
+    model = Science
     max_num = 1
-    readonly_fields = ('entity',)
-    verbose_name = "Elite"
-    verbose_name_plural = "Elite"
+    verbose_name = "Science"
+    verbose_name_plural = "Science"
     show_change_link = True
     can_delete = False
 
 
-@admin.register(Military)
+class InfrastructureAdmin(admin.ModelAdmin):
+    pass
+
+
+class ScienceAdmin(admin.ModelAdmin):
+    pass
+
+
+class MagicAdmin(admin.ModelAdmin):
+    pass
+
+
+class ThieveryAdmin(admin.ModelAdmin):
+    pass
+
+
 class MilitaryAdmin(admin.ModelAdmin):
-    ### entity inlines
+    fieldsets = (
+        (None, {
+            'fields': ('attack_time', 'general_count')
+        }),
+        ('Entities', {
+            'classes': ('collapse',),
+            'fields': ('soldiers', 'offspec', 'defspec', 'elites'),
+        }),
+    )
+
+
+class ProvinceAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'ruler', 'owner', 'kingdom')
+        }),
+        ('Entities', {
+            'classes': ('collapse',),
+            'fields': ('peasants', 'food', 'runes', 'gold_coins'),
+        }),
+    )
+
     inlines = [
-        SoldierInline,
-        OffspecInline,
-        DefspecInline,
-        EliteInline,
-    ]
+        MilitaryInline, InfrastructureInline, ScienceInline,
+        MagicInline, ThieveryInline]
+
+
+admin.site.register(Province, ProvinceAdmin)
+admin.site.register(Military, MilitaryAdmin)
+admin.site.register(Infrastructure, InfrastructureAdmin)
+admin.site.register(Science, ScienceAdmin)
+admin.site.register(Magic, MagicAdmin)
+admin.site.register(Thievery, ThieveryAdmin)
