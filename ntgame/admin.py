@@ -96,8 +96,6 @@ class ThieveryAdmin(admin.ModelAdmin):
 class MilitaryAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-            'fields': ('attack_time', 'general_count')
-        }),
         ('Entities', {
             'classes': ('collapse',),
             'fields': ('soldiers', 'offspec', 'defspec', 'elites'),
